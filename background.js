@@ -2,11 +2,14 @@ let ONE_MINUTE = 60 * 1000;
 
 let focusTime = 25;
 let breakTime = 5;
+let longBreakTime = 25;
 
 var isFocusTime = false;
 var interval;
 
 var curTime = focusTime;
+
+var pomodoroCount = 1;
 
 // Listener to catch messages sent from popup script
 chrome.runtime.onMessage.addListener(function (msg) {
@@ -24,6 +27,7 @@ chrome.runtime.onMessage.addListener(function (msg) {
 function startTimer() {
   curTime = focusTime;
   isFocusTime = true;
+  pomodoroCount = 1;
 
   chrome.action.setBadgeText({ text: curTime.toString() });
   chrome.action.setBadgeBackgroundColor({ color: "green" });
@@ -36,8 +40,9 @@ function intervalFunction() {
     curTime = curTime - 1;
   } else {
     // Swap from focus time to break time or vice versa
-    curTime = isFocusTime ? breakTime : focusTime
+    curTime = isFocusTime ? (!(pomodoroCount == 3) ? breakTime : longBreakTime) : focusTime
     chrome.action.setBadgeBackgroundColor({ color: isFocusTime ? "blue" : "green" });
+    pomodoroCount = !isFocusTime ? (pomodoroCount == 3 ? 0 : pomodoroCount + 1) : pomodoroCount
     isFocusTime = !isFocusTime
   }
 
